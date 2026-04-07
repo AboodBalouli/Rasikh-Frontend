@@ -1,0 +1,10 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Add profile image picker to org page",
+			"type": "shell",
+			"command": "echo Updating create_org_acc.dart to add required profile image picker"
+		}
+	]
+}

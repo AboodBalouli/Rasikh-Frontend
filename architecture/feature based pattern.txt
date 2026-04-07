@@ -1,0 +1,346 @@
+========================================
+PROJECT ARCHITECTURE README
+========================================
+
+This project follows a STRICT Feature-Based Clean Architecture.
+The goal is:
+- Clear separation of concerns
+- Zero ambiguity for developers and AI agents
+- Predictable dependency flow
+- Easy scaling with multiple developers
+
+DO NOT add folders or place files outside the rules defined here.
+If something does not clearly fit, ASK before implementing.
+
+========================================
+GLOBAL STRUCTURE
+========================================
+
+lib
+├── app
+│   └── dependency_injection
+│
+├── core
+│   ├── constants
+│   ├── network
+│   │   └── models
+│   ├── theme
+│   │   └── styles
+│   ├── utils
+│   │   ├── constants
+│   │   └── helpers
+│   └── widgets
+│       ├── forms
+│       ├── icons
+│       ├── products
+│       └── texts
+│
+└── features
+    └── feature
+        ├── data
+        │   ├── datasources
+        │   ├── mappers
+        │   ├── models
+        │   └── repositories
+        │
+        ├── domain
+        │   ├── entities
+        │   ├── repositories
+        │   └── usecases
+        │
+        └── presentation
+            ├── controllers
+            ├── pages
+            ├── providers
+            └── widgets
+
+========================================
+APP LAYER (lib/app)
+========================================
+
+Purpose:
+- Application entry point
+- App-level wiring and bootstrap
+- Composition root
+
+app/dependency_injection
+- App-wide dependency wiring ONLY
+- Repository → UseCase → Controller wiring
+- Global provider containers if used
+
+RULES:
+- NO business logic
+- NO feature logic
+- NO HTTP or storage
+- This is the ONLY place where global DI is allowed
+
+========================================
+CORE LAYER (lib/core)
+========================================
+
+Purpose:
+- Cross-cutting, reusable code
+- Shared by ALL features
+
+----------------------------------------
+core/constants
+----------------------------------------
+- App-wide constants
+- Enums, keys, fixed values
+- NOT feature-specific
+
+----------------------------------------
+core/network
+----------------------------------------
+Purpose:
+- Shared networking infrastructure
+
+core/network/models:
+- Generic API response models
+- API error models
+- Pagination / envelope responses
+
+RULES:
+- Generic only
+- NOT feature-specific DTOs
+
+----------------------------------------
+core/theme
+----------------------------------------
+Purpose:
+- App-wide styling
+
+core/theme/styles:
+- Colors
+- Text styles
+- Spacing
+- Theme tokens
+
+----------------------------------------
+core/utils
+----------------------------------------
+Purpose:
+- Generic helper logic
+
+core/utils/constants:
+- Constants used by helpers only
+
+core/utils/helpers:
+- Validation helpers
+- Date/time helpers
+- Parsing helpers
+- Extension helpers
+
+RULES:
+- Stateless
+- Feature-agnostic
+- No HTTP, no UI
+
+----------------------------------------
+core/widgets
+----------------------------------------
+Purpose:
+- Global reusable UI components
+
+Used by MULTIPLE features.
+
+Subfolders:
+- forms      → shared form widgets
+- icons      → icon wrappers
+- products   → generic product UI
+- texts      → shared text widgets
+
+RULES:
+- No feature-specific logic
+- UI only
+
+========================================
+FEATURES LAYER (lib/features)
+========================================
+
+Each feature is fully isolated and owns:
+- Its data
+- Its business logic
+- Its UI
+
+Features must NOT access other features’ internals.
+
+========================================
+FEATURE DATA LAYER
+========================================
+
+features/feature/data
+
+Purpose:
+- External data access
+- API / cache / storage logic
+
+----------------------------------------
+data/datasources
+----------------------------------------
+- Remote API calls
+- Local storage access
+- Database access
+
+RULES:
+- Can use HTTP, Dio, storage libraries
+- Returns models or raw data
+- NO business logic
+
+----------------------------------------
+data/models
+----------------------------------------
+- Feature-specific DTOs
+- API request/response shapes
+- JSON serialization
+
+RULES:
+- Represents DATA format
+- NOT used directly by UI
+
+----------------------------------------
+data/mappers
+----------------------------------------
+- Converts models ↔ domain entities
+- Pure transformation logic
+
+----------------------------------------
+data/repositories
+----------------------------------------
+- Concrete implementations of domain repositories
+- Coordinates datasources and mappers
+
+RULES:
+- Implements domain repository contracts
+- Returns domain entities
+- NO UI logic
+
+========================================
+FEATURE DOMAIN LAYER
+========================================
+
+features/feature/domain
+
+Purpose:
+- Core business logic
+- Framework-independent
+
+----------------------------------------
+domain/entities
+----------------------------------------
+- Business objects
+- Immutable where possible
+- Pure Dart
+
+----------------------------------------
+domain/repositories
+----------------------------------------
+- Abstract repository contracts
+- Defines WHAT the feature can do
+
+RULES:
+- No implementation
+- No HTTP
+- No Flutter
+
+----------------------------------------
+domain/usecases
+----------------------------------------
+- One business action per use case
+- Orchestrates repositories
+
+RULES:
+- One responsibility
+- No UI
+- No data layer imports
+
+========================================
+FEATURE PRESENTATION LAYER
+========================================
+
+features/feature/presentation
+
+Purpose:
+- UI and state management
+
+----------------------------------------
+presentation/controllers
+----------------------------------------
+Purpose:
+- State + orchestration logic
+
+Contains:
+- State management
+- Calls to use cases
+- Loading/error handling
+
+RULES:
+- NO HTTP
+- NO repository implementations
+- NO direct data layer access
+
+----------------------------------------
+presentation/providers
+----------------------------------------
+Purpose:
+- Dependency wiring ONLY
+
+Contains:
+- Provider declarations
+- Controller wiring
+- Lifecycle management
+
+RULES:
+- NO logic
+- NO state mutations
+- Think of providers as factories
+
+----------------------------------------
+presentation/pages
+----------------------------------------
+- Screens / routes
+- UI composition
+
+----------------------------------------
+presentation/widgets
+----------------------------------------
+- Feature-specific reusable widgets
+- Used ONLY inside this feature
+
+========================================
+DEPENDENCY RULES (STRICT)
+========================================
+
+ALLOWED:
+- presentation → domain
+- data → domain
+- app → core, presentation, domain
+
+NOT ALLOWED:
+- domain → data
+- domain → presentation
+- data → presentation
+- feature → another feature’s internals
+
+========================================
+FINAL MENTAL MODEL
+========================================
+
+UI
+ ↓
+Controller (state + logic)
+ ↓
+UseCase
+ ↓
+Repository (abstract)
+ ↓
+Repository (implementation)
+ ↓
+Datasource (API / DB)
+
+Providers ONLY connect layers.
+They do NOT contain logic.
+
+========================================
+END OF CONTRACT
+========================================
