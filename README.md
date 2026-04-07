@@ -20,11 +20,11 @@
 ##  Screenshots
 
 <p align="center">
-  <img src="assets/images/screenshots/landing.png" alt="Landing Page" width="250"/>
+  <img src="assets/screenshots/landing.png" alt="Landing Page" width="250"/>
   &nbsp;&nbsp;
-  <img src="assets/images/screenshots/home.png" alt="Home Page" width="250"/>
+  <img src="assets/screenshots/home.png" alt="Home Page" width="250"/>
   &nbsp;&nbsp;
-  <img src="assets/images/screenshots/guest_profile.png" alt="Guest Profile" width="250"/>
+  <img src="assets/screenshots/guest_profile.png" alt="Guest Profile" width="250"/>
 </p>
 
 > *Landing page · Home page · Guest profile*
